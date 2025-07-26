@@ -61,38 +61,5 @@ def process_user_content():
         logging.error("Failed to save user content")
         return jsonify({"status": "error", "message": "Failed to save user content.", "error_code": 500}), 500
 
-@app.route('/generate_response', methods=['POST'])
-def generate_response():
-    logging.info("Received request for /generate_response")
-    data = request.json
-    logging.info(f"Request payload: {data}")
-    if not data or 'prompt' not in data:
-        logging.error("Invalid request payload (missing JSON or prompt) in /generate_response")
-        return jsonify({"status": "error", "message": "Invalid request payload (missing JSON or prompt).", "error_code": 400}), 400
-
-    prompt = data['prompt']
-    logging.info(f"Prompt received: {prompt}")
-
-    # Create the location agent
-    location_agent = create_location_agent()
-    logging.info("Location agent created")
-
-    try:
-        # Send the message to the agent and get the response
-        agent_response = location_agent.process_turn(prompt)
-        logging.info("Received response from location agent")
-
-        # Assuming the agent_response has a 'response' attribute containing the generated text
-        generated_response = agent_response.response
-        logging.info(f"Generated response: {generated_response}")
-
-    except Exception as e:
-        logging.error(f"Error generating response from agent: {str(e)}", exc_info=True)
-        # Handle any errors during agent interaction
-        return jsonify({"status": "error", "message": f"Error generating response from agent: {str(e)}", "error_code": 500}), 500
-
-    return jsonify({"status": "success", "response": generated_response})
-
-
 if __name__ == '__main__':
     app.run(debug=True)
