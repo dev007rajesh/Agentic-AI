@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 
 # Initialize Firebase Admin SDK (replace with your actual credentials file and database URL)
-cert_path = 'agentic-ai-hackathon-478c0-firebase-adminsdk-fbsvc-2436bafee9.json' # <---- IMPORTANT: Replace with your file path
+cert_path = 'src/utils/agentic-ai-hackathon-478c0-firebase-adminsdk-fbsvc-2436bafee9.json' # <---- IMPORTANT: Replace with your file path
 database_url = 'https://agentic-ai-hackathon-478c0-default-rtdb.firebaseio.com/' # <---- IMPORTANT: Replace with your database URL
 
 try:

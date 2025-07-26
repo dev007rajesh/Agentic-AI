@@ -1,0 +1,45 @@
+### Get Predictions
+GET http://127.0.0.1:5000/get_predictions?city=London&location=Hyde%20Park&sessionId=test_session_123
+
+### Get Predictions (only city)
+GET http://127.0.0.1:5000/get_predictions?city=Paris
+
+### Get Predictions (missing city)
+GET http://127.0.0.1:5000/get_predictions?location=Hyde%20Park&sessionId=test_session_123
+
+### Process User Content
+POST http://127.0.0.1:5000/process_user_content
+Content-Type: application/json
+
+{
+    "text": "Some user content",
+    "location": "Test Location"
+}
+
+### Process User Content (only image)
+POST http://127.0.0.1:5000/process_user_content
+Content-Type: application/json
+
+{
+    "image": "base64encodedimage"
+}
+
+### Process User Content (missing fields)
+POST http://127.0.0.1:5000/process_user_content
+Content-Type: application/json
+
+{}
+
+### Generate Response
+POST http://127.0.0.1:5000/generate_response
+Content-Type: application/json
+
+{
+    "prompt": "Tell me about the incidents in New York."
+}
+
+### Generate Response (missing prompt)
+POST http://127.0.0.1:5000/generate_response
+Content-Type: application/json
+
+{}

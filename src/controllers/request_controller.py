@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from src.utils.firebase_utils import get_data, post_data
 import uuid
 from src.agents.location_agent import create_location_agent
-from google.adk.communication import Message
 
 app = Flask(__name__)
 
@@ -59,12 +58,9 @@ def generate_response():
     # Create the location agent
     location_agent = create_location_agent()
 
-    # Create a message object for the agent
-    message = Message(prompt=prompt)
-
     try:
         # Send the message to the agent and get the response
-        agent_response = location_agent.send_message(message)
+        agent_response = location_agent.process_turn(prompt)
 
         # Assuming the agent_response has a 'response' attribute containing the generated text
         generated_response = agent_response.response

@@ -1,4 +1,4 @@
-google-adk[database]==0.3.0
+google-adk
 requests
 # yfinance==0.2.56
 # psutil==5.9.5
@@ -7,3 +7,4 @@ requests
 # python-dotenv==1.1.0
 kafka-python
 Flask
+firebase_admin
