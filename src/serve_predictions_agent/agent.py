@@ -1,7 +1,7 @@
-from google.adk import LlmAgent
+from google.adk import Agent
 from google.adk.tools.agent_tool import AgentTool
 from . import prompt
-from src.utils.firebase_utils import get_data
+from utils.firebase_utils import get_data
 
 MODEL = "gemini-2.5-pro"
 
@@ -33,18 +33,15 @@ def get_user_frequent_places(sessionId):
     """
     return get_data(f'user_timeline/{sessionId}')
 
-serve_predictions_agent = LlmAgent(
+root_agent = Agent(
     name="serve_predictions_agent",
     model=MODEL,
     description=(
         "This agent provides information about incidents in a particular location, potential difficulties in reaching the location, and necessary precautions."
     ),
     instruction=prompt.LOCATION_AGENT_PROMPT,
-    output_key="location_agent_output",
     tools=[
         AgentTool(tool=get_city_incident_data),
         AgentTool(tool=get_user_frequent_places)
     ],
 )
-
-root_agent = location_agent
