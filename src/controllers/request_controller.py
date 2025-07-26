@@ -1,82 +1,80 @@
 from flask import Flask, request, jsonify
-from src.agents.root_agent import RootAgent  # Assuming this is the correct import path
+from src.utils.firebase_utils import get_data, post_data
+import uuid
+from src.agents.location_agent import create_location_agent
+from google.adk.communication import Message
 
 app = Flask(__name__)
 
-# Initialize the Root Agent
-root_agent = RootAgent()
+@app.route('/get_predictions', methods=['GET'])
+def get_predictions_route():
+    city = request.args.get('city')
+    location = request.args.get('location')
+    sessionId = request.args.get('sessionId')
 
-@app.route('/process_request', methods=['POST'])
-def process_request():
+    if sessionId and location:
+        user_timeline = get_data(f'user_timeline/{sessionId}')
+        if user_timeline is None:
+            user_timeline = {'locations': []}
+        user_timeline['locations'].append(location)
+        user_timeline['locations'] = user_timeline['locations'][-50:]
+        post_data(f'user_timeline/{sessionId}', user_timeline)
+    city = request.args.get('city')
+    if not city:
+        return jsonify({"status": "error", "message": "city is a required query parameter.", "error_code": 400}), 400
+
+    predictions = get_data(f'city_predictions/{city}')
+
+    if predictions is not None:
+        return jsonify({"status": "success", "data": predictions})
+    else:
+        return jsonify({"status": "error", "message": f"Could not retrieve predictions for {city}.", "error_code": 500}), 500
+
+@app.route('/process_user_content', methods=['POST'])
+def process_user_content():
     data = request.json
-
-    if not data:
-        return jsonify({"status":from flask import Flask, request, jsonify
-from src.agents.location_processing_agent import LocationProcessingAgent
-from src.agents.incident_reporting_agent import IncidentReportingAgent
-
-app = Flask(__name__)
-
-# Initialize the specific agents
-location_processing_agent = LocationProcessingAgent()
-incident_reporting_agent = IncidentReportingAgent()
-
-@app.route('/process_location_data', methods=['POST'])
-def process_location_data():
-    data = request.json
-
-    if not data:
-        return jsonify({"status": "error", "message": "Invalid request payload (missing JSON).", "error_code": 400}), 400
-
-    # Basic validation for Request Type 1 data
-    # You should add more comprehensive validation here based on your data requirements
-    if "area" not in data:
-         return jsonify({"status": "error", "message": "Missing 'area' in request payload.", "error_code": 400}), 400
-
-
-    # Pass the validated data directly to the Location Processing Agent
-    response = location_processing_agent.process(data)
-
-    return jsonify(response), 200
-
-
-@app.route('/process_incident_report', methods=['POST'])
-def process_incident_report():
-    data = request.json
-
     if not data:
         return jsonify({"status": "error", "message": "Invalid request payload (missing JSON).", "error_code": 400}), 400
+    
+    if not any(key in data for key in ['text', 'image', 'location']):
+        return jsonify({"status": "error", "message": "At least one of text, image, or location must be provided.", "error_code": 400}), 400
+    
+    data['id'] = str(uuid.uuid4()) # Add a unique ID
+    # Save the data to Firebase under 'user_posts'
 
-    # Basic validation for Request Type 2 data
-    # You should add more comprehensive validation here based on your data requirements
-    if "incident_details" not in data:
-         return jsonify({"status": "error", "message": "Missing 'incident_details' in request payload.", "error_code": 400}), 400
+    success = post_data('user_posts', data)
+    if success:
+        return jsonify({"status": "success", "message": "User content received and saved."})
+    else:
+        return jsonify({"status": "error", "message": "Failed to save user content.", "error_code": 500}), 500
 
-    # Pass the validated data directly to the Incident Reporting Agent
-    response = incident_reporting_agent.process(data)
+@app.route('/generate_response', methods=['POST'])
+def generate_response():
+    data = request.json
+    if not data or 'prompt' not in data:
+        return jsonify({"status": "error", "message": "Invalid request payload (missing JSON or prompt).", "error_code": 400}), 400
 
-    return jsonify(response), 200
+    prompt = data['prompt']
+
+    # Create the location agent
+    location_agent = create_location_agent()
+
+    # Create a message object for the agent
+    message = Message(prompt=prompt)
+
+    try:
+        # Send the message to the agent and get the response
+        agent_response = location_agent.send_message(message)
+
+        # Assuming the agent_response has a 'response' attribute containing the generated text
+        generated_response = agent_response.response
+
+    except Exception as e:
+        # Handle any errors during agent interaction
+        return jsonify({"status": "error", "message": f"Error generating response from agent: {str(e)}", "error_code": 500}), 500
+
+    return jsonify({"status": "success", "response": generated_response})
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
- "error", "message": "Invalid request payload (missing JSON).", "error_code": 400}), 400
-
-    request_type = data.get("request_type")
-
-    if request_type is None:
-        return jsonify({"status": "error", "message": "Invalid user request (missing 'request_type').", "error_code": 400}), 400
-
-    if request_type not in [1, 2]:
-        return jsonify({"status": "error", "message": "Invalid user request (invalid 'request_type').", "error_code": 400}), 400
-
-    # If the request is valid, pass it to the Root Agent
-    response = root_agent.process(data)
-
-    return jsonify(response), 200 # Assuming the agent returns a status code within the response or we'll set it here
-
-
-if __name__ == '__main__':
-    # This is for local testing. For production deployment (e.g., on Vertex AI),
-    # you would typically use a production-ready web server like Gunicorn.
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
