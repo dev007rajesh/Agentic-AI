@@ -33,8 +33,8 @@ def get_user_frequent_places(sessionId):
     """
     return get_data(f'user_timeline/{sessionId}')
 
-location_agent = LlmAgent(
-    name="location_agent",
+serve_predictions_agent = LlmAgent(
+    name="serve_predictions_agent",
     model=MODEL,
     description=(
         "This agent provides information about incidents in a particular location, potential difficulties in reaching the location, and necessary precautions."
