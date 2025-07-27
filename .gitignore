@@ -2,3 +2,4 @@
 *.*.pyc
 oldCode/grok_location_posts_agent/__pycache__/__init__.cpython-313.pyc
 oldCode/grok_location_posts_agent/__pycache__/agent.cpython-313.pyc
+src/.venv/
