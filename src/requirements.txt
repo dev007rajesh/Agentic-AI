@@ -8,3 +8,9 @@ requests
 kafka-python
 Flask
 firebase_admin
+google-cloud-aiplatform
+cloudpickle
+langchain
+langchain-core
+langchain-google-vertexai
+pydantic

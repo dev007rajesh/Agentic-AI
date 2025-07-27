@@ -1,5 +1,4 @@
 from google.adk import Agent
-from google.adk.tools.agent_tool import AgentTool
 from . import prompt
 from utils.firebase_utils import get_data
 
@@ -39,7 +38,7 @@ root_agent = Agent(
     description=(
         "This agent provides information about incidents in a particular location, potential difficulties in reaching the location, and necessary precautions."
     ),
-    instruction="You are a helpful assistant that provides information about incidents in a particular location based on user queries. You should also share potential difficulties and precautions a user should follow if they plan to travel to that location, based on the incident data. Use the available tools to fetch relevant information.",#prompt.LOCATION_AGENT_PROMPT,
+    instruction=prompt.LOCATION_AGENT_PROMPT,
     tools=[
         get_city_incident_data,
         get_user_frequent_places
