@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
-from src.utils.firebase_utils import get_data, post_data
+from utils.firebase_utils import get_data, post_data
 import uuid
-from src.agents.location_agent import create_location_agent
 import logging
 
 logging.basicConfig(level=logging.INFO)

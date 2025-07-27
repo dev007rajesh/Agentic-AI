@@ -3,9 +3,9 @@ from google.adk.tools.agent_tool import AgentTool
 from . import prompt
 from utils.firebase_utils import get_data
 
-MODEL = "gemini-2.5-pro"
+MODEL = "gemini-2.0-flash"
 
-def get_city_incident_data(city_name):
+def get_city_incident_data(city_name: str):
     """Queries Firebase for incident data for a given city."""
     """
     Retrieves incident data for a specified city from a Firebase database.
@@ -19,7 +19,7 @@ def get_city_incident_data(city_name):
     """
     return get_data(f'city_predictions/{city_name}')
 
-def get_user_frequent_places(sessionId):
+def get_user_frequent_places(sessionId: str):
     """Queries Firebase for a user's frequent visit places."""
     """
     Retrieves frequent visit places from a user's timeline node in the Firebase database.
@@ -39,9 +39,9 @@ root_agent = Agent(
     description=(
         "This agent provides information about incidents in a particular location, potential difficulties in reaching the location, and necessary precautions."
     ),
-    instruction=prompt.LOCATION_AGENT_PROMPT,
+    instruction="You are a helpful assistant that provides information about incidents in a particular location based on user queries. You should also share potential difficulties and precautions a user should follow if they plan to travel to that location, based on the incident data. Use the available tools to fetch relevant information.",#prompt.LOCATION_AGENT_PROMPT,
     tools=[
-        AgentTool(tool=get_city_incident_data),
-        AgentTool(tool=get_user_frequent_places)
+        get_city_incident_data,
+        get_user_frequent_places
     ],
 )
